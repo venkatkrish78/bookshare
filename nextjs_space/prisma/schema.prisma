@@ -1,0 +1,106 @@
+generator client {
+    provider = "prisma-client-js"
+    binaryTargets = ["native", "linux-musl-arm64-openssl-3.0.x"]
+    output = "/home/ubuntu/bookshare/nextjs_space/node_modules/.prisma/client"
+}
+
+datasource db {
+    provider = "postgresql"
+    url      = env("DATABASE_URL")
+}
+
+model User {
+  id               String   @id @default(cuid())
+  name             String
+  email            String   @unique
+  emailVerified    Boolean  @default(false)
+  verificationToken String?
+  isAdmin          Boolean  @default(false)
+  isDisabled       Boolean  @default(false)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  ownedBooks       Book[]   @relation("BookOwner")
+  loans            Loan[]   @relation("Borrower")
+  waitlistEntries  Waitlist[]
+}
+
+model Category {
+  id    String @id @default(cuid())
+  name  String @unique
+  books Book[]
+}
+
+model Book {
+  id          String   @id @default(cuid())
+  title       String
+  author      String
+  condition   String?
+  description String?
+  status      String   @default("pending") // pending, approved, rejected, paused
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  categoryId  String
+  category    Category @relation(fields: [categoryId], references: [id])
+  
+  ownerId     String
+  owner       User     @relation("BookOwner", fields: [ownerId], references: [id])
+
+  loans       Loan[]
+  waitlist    Waitlist[]
+
+  @@index([status])
+  @@index([ownerId])
+}
+
+model Loan {
+  id           String    @id @default(cuid())
+  startDate    DateTime  @default(now())
+  dueDate      DateTime
+  returnedDate DateTime?
+  status       String    @default("active") // active, returned, overdue
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  bookId       String
+  book         Book      @relation(fields: [bookId], references: [id])
+  
+  borrowerId   String
+  borrower     User      @relation("Borrower", fields: [borrowerId], references: [id])
+
+  @@index([bookId])
+  @@index([borrowerId])
+  @@index([status])
+}
+
+model Waitlist {
+  id              String    @id @default(cuid())
+  position        Int
+  status          String    @default("waiting") // waiting, offered, accepted, declined, expired
+  offerToken      String?   @unique
+  offerExpiresAt  DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  bookId          String
+  book            Book      @relation(fields: [bookId], references: [id])
+  
+  userId          String
+  user            User      @relation(fields: [userId], references: [id])
+
+  @@index([bookId])
+  @@index([userId])
+  @@index([status])
+}
+
+model VerificationCode {
+  id        String   @id @default(cuid())
+  email     String
+  code      String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([email])
+  @@index([code])
+}
