@@ -96,7 +96,7 @@ export default function AdminDashboard() {
       value: stats.totalBooks,
       icon: BookOpen,
       color: 'from-purple-500 to-pink-500',
-      link: '/'
+      link: '/admin/books'
     }
   ]
 
@@ -152,6 +152,11 @@ export default function AdminDashboard() {
           <Link href="/admin/users" className="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-shadow">
             <h3 className="text-lg font-semibold text-gray-900 mb-2">User Management</h3>
             <p className="text-sm text-gray-600">Manage users and handle abuse</p>
+          </Link>
+
+          <Link href="/admin/books" className="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-shadow">
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">Books Management</h3>
+            <p className="text-sm text-gray-600">Edit or delete books in the catalog</p>
           </Link>
         </motion.div>
       </div>
