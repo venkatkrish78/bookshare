@@ -8,8 +8,11 @@ export async function sendEmail({
   html: string
 }) {
   try {
-    const appUrl = process.env.NEXTAUTH_URL || 'http://localhost:3000'
     const appName = 'BookShare'
+    // Use the production hostname for sender email
+    const senderDomain = process.env.APP_HOSTNAME || 'bookshare.abacusai.app'
+
+    console.log(`Sending email to ${to} with subject: ${subject}`)
 
     const response = await fetch('https://apps.abacus.ai/api/sendNotificationEmail', {
       method: 'POST',
@@ -20,16 +23,20 @@ export async function sendEmail({
         body: html,
         is_html: true,
         recipient_email: to,
-        sender_email: `noreply@${new URL(appUrl).hostname}`,
+        sender_email: `noreply@${senderDomain}`,
         sender_alias: appName,
       }),
     })
 
     const result = await response.json()
+    console.log('Email API response:', result)
+    
     if (!result.success) {
+      console.error('Email send failed:', result.message || 'Unknown error')
       throw new Error(result.message || 'Failed to send email')
     }
 
+    console.log(`Email sent successfully to ${to}`)
     return { success: true }
   } catch (error) {
     console.error('Email send error:', error)
