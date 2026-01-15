@@ -29,14 +29,6 @@ export function BookCard({ book, index = 0 }: { book: Book; index?: number }) {
     >
       <Link href={`/book/${book?.id}`}>
         <div className="group relative bg-white rounded-xl border border-gray-200 p-4 hover:shadow-lg transition-all duration-300 hover:-translate-y-1 cursor-pointer h-full">
-          {/* Status Badge */}
-          {isOnLoan && (
-            <div className="absolute top-3 right-3 px-2 py-1 bg-orange-100 text-orange-700 text-xs font-semibold rounded-full flex items-center space-x-1 z-10">
-              <Clock className="h-3 w-3" />
-              <span>On Loan</span>
-            </div>
-          )}
-
           <div className="flex gap-4">
             {/* Book Cover */}
             <BookCover 
@@ -48,9 +40,18 @@ export function BookCard({ book, index = 0 }: { book: Book; index?: number }) {
 
             {/* Book Info */}
             <div className="flex-1 min-w-0">
-              <h3 className="text-base font-semibold text-gray-900 mb-1 line-clamp-2 group-hover:text-indigo-600 transition-colors">
-                {book?.title}
-              </h3>
+              {/* Title and Status Badge Row */}
+              <div className="flex items-start gap-2 mb-1">
+                <h3 className="text-base font-semibold text-gray-900 line-clamp-2 group-hover:text-indigo-600 transition-colors flex-1">
+                  {book?.title}
+                </h3>
+                {isOnLoan && (
+                  <div className="flex-shrink-0 px-2 py-1 bg-orange-100 text-orange-700 text-xs font-semibold rounded-full flex items-center space-x-1">
+                    <Clock className="h-3 w-3" />
+                    <span>On Loan</span>
+                  </div>
+                )}
+              </div>
               <p className="text-sm text-gray-600 mb-2">by {book?.author}</p>
 
               {/* Metadata */}
