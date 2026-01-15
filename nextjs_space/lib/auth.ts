@@ -1,9 +1,7 @@
-import { PrismaClient } from '@prisma/client'
 import { cookies } from 'next/headers'
 import { NextRequest } from 'next/server'
 import jwt from 'jsonwebtoken'
-
-const prisma = new PrismaClient()
+import { prisma } from './db'
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production'
 

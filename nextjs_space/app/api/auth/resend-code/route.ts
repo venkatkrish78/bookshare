@@ -1,9 +1,8 @@
 import { NextResponse } from 'next/server'
-import { PrismaClient } from '@prisma/client'
+import { prisma } from '@/lib/db'
 import { createVerificationCode } from '@/lib/auth'
 import { sendEmail, getVerificationEmailHtml } from '@/lib/email'
 
-const prisma = new PrismaClient()
 
 export async function POST(request: Request) {
   try {

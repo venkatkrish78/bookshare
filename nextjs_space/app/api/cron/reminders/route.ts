@@ -1,8 +1,7 @@
 import { NextResponse } from 'next/server'
-import { PrismaClient } from '@prisma/client'
+import { prisma } from '@/lib/db'
 import { sendEmail, getDueSoonReminderEmailHtml, getOverdueReminderEmailHtml } from '@/lib/email'
 
-const prisma = new PrismaClient()
 
 export const dynamic = 'force-dynamic'
 
