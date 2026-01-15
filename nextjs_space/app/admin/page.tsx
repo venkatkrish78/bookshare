@@ -3,9 +3,10 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from '@/components/auth-provider'
 import { useRouter } from 'next/navigation'
-import { Users, BookOpen, Clock, CheckCircle } from 'lucide-react'
+import { Users, BookOpen, Clock, CheckCircle, Download, Database, Mail, Loader2 } from 'lucide-react'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
+import { toast } from 'sonner'
 
 export default function AdminDashboard() {
   const { user, loading: authLoading } = useAuth()
@@ -17,6 +18,7 @@ export default function AdminDashboard() {
     totalBooks: 0
   })
   const [loading, setLoading] = useState(true)
+  const [backupLoading, setBackupLoading] = useState(false)
 
   useEffect(() => {
     if (!authLoading) {
@@ -65,6 +67,40 @@ export default function AdminDashboard() {
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
       </div>
     )
+  }
+
+  const handleDownloadBackup = async () => {
+    setBackupLoading(true)
+    try {
+      const response = await fetch('/api/admin/backup')
+      
+      if (!response.ok) {
+        const data = await response.json()
+        throw new Error(data.error || 'Failed to generate backup')
+      }
+      
+      const blob = await response.blob()
+      const contentDisposition = response.headers.get('Content-Disposition')
+      const filenameMatch = contentDisposition?.match(/filename="(.+)"/)
+      const filename = filenameMatch ? filenameMatch[1] : `bookshare-backup-${new Date().toISOString().split('T')[0]}.xlsx`
+      
+      // Create download link
+      const url = window.URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = filename
+      document.body.appendChild(a)
+      a.click()
+      window.URL.revokeObjectURL(url)
+      document.body.removeChild(a)
+      
+      toast.success('Backup downloaded successfully')
+    } catch (error: any) {
+      console.error('Backup download failed:', error)
+      toast.error(error.message || 'Failed to download backup')
+    } finally {
+      setBackupLoading(false)
+    }
   }
 
   if (!user?.isAdmin) return null
@@ -158,6 +194,65 @@ export default function AdminDashboard() {
             <h3 className="text-lg font-semibold text-gray-900 mb-2">Books Management</h3>
             <p className="text-sm text-gray-600">Edit or delete books in the catalog</p>
           </Link>
+        </motion.div>
+
+        {/* Data Backup Section */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.5 }}
+          className="mt-8"
+        >
+          <div className="bg-white rounded-xl shadow-lg p-6">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center">
+                <Database className="h-5 w-5 text-white" />
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold text-gray-900">Data Backup</h3>
+                <p className="text-sm text-gray-600">Download or schedule automatic backups</p>
+              </div>
+            </div>
+            
+            <div className="border-t pt-4 mt-4">
+              <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
+                <div className="flex-1">
+                  <button
+                    onClick={handleDownloadBackup}
+                    disabled={backupLoading}
+                    className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-emerald-500 to-teal-500 text-white rounded-lg font-medium hover:from-emerald-600 hover:to-teal-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {backupLoading ? (
+                      <>
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                        Generating...
+                      </>
+                    ) : (
+                      <>
+                        <Download className="h-4 w-4" />
+                        Download Backup Now
+                      </>
+                    )}
+                  </button>
+                  <p className="text-xs text-gray-500 mt-2">
+                    Downloads an Excel file with all users, books, loans, and requests data.
+                  </p>
+                </div>
+                
+                <div className="bg-blue-50 rounded-lg p-4 flex-shrink-0">
+                  <div className="flex items-center gap-2 text-blue-700 mb-1">
+                    <Mail className="h-4 w-4" />
+                    <span className="text-sm font-medium">Automated Backup</span>
+                  </div>
+                  <p className="text-xs text-blue-600">
+                    Weekly backups are emailed to<br />
+                    <strong>venkatkrish78@gmail.com</strong><br />
+                    every Monday at 9:00 AM
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
         </motion.div>
       </div>
     </div>
