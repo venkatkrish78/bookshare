@@ -37,9 +37,10 @@ export async function getSession(): Promise<SessionUser | null> {
     
     const decoded = jwt.verify(token, JWT_SECRET) as SessionUser
     
-    // Verify user still exists and is not disabled
+    // Verify user still exists and is not disabled, and get fresh isAdmin status
     const user = await prisma.user.findUnique({
-      where: { id: decoded.id }
+      where: { id: decoded.id },
+      select: { id: true, email: true, name: true, isAdmin: true, isDisabled: true, emailVerified: true }
     })
     
     if (!user || user.isDisabled) {
@@ -47,7 +48,14 @@ export async function getSession(): Promise<SessionUser | null> {
       return null
     }
     
-    return decoded
+    // Return fresh user data from database (not stale JWT data)
+    return {
+      id: user.id,
+      email: user.email,
+      name: user.name,
+      isAdmin: user.isAdmin,
+      emailVerified: user.emailVerified
+    }
   } catch (error) {
     return null
   }

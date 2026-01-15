@@ -34,29 +34,7 @@ export async function POST(request: Request) {
       )
     }
 
-    // If already verified, create session directly
-    if (user.emailVerified) {
-      await createSession({
-        id: user.id,
-        email: user.email,
-        name: user.name,
-        isAdmin: user.isAdmin,
-        emailVerified: true
-      })
-
-      return NextResponse.json({
-        success: true,
-        message: 'Login successful!',
-        user: {
-          id: user.id,
-          name: user.name,
-          email: user.email,
-          isAdmin: user.isAdmin
-        }
-      })
-    }
-
-    // If not verified, send verification code
+    // Always require verification code for every login
     const code = await createVerificationCode(email)
     await sendEmail({
       to: email,
