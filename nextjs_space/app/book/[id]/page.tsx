@@ -8,6 +8,7 @@ import { motion } from 'framer-motion'
 import { toast } from 'sonner'
 import Link from 'next/link'
 import QRCode from 'qrcode'
+import { BookCover } from '@/components/book-cover'
 
 export default function BookDetailPage() {
   const params = useParams()
@@ -197,16 +198,30 @@ export default function BookDetailPage() {
           className="bg-white rounded-xl shadow-lg p-8"
         >
           {/* Header */}
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8">
-            <div className="flex-1 mb-4 md:mb-0">
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">{book?.title}</h1>
-              <p className="text-lg text-gray-600">by {book?.author}</p>
-            </div>
-            {qrCode && (
-              <div className="flex-shrink-0">
-                <img src={qrCode} alt="QR Code" className="w-24 h-24 border border-gray-200 rounded-lg" />
+          <div className="flex flex-col md:flex-row gap-6 mb-8">
+            {/* Book Cover */}
+            <BookCover 
+              coverUrl={book?.coverUrl} 
+              title={book?.title} 
+              size="lg"
+            />
+            
+            <div className="flex-1">
+              <div className="flex justify-between items-start">
+                <div>
+                  <h1 className="text-3xl font-bold text-gray-900 mb-2">{book?.title}</h1>
+                  <p className="text-lg text-gray-600">by {book?.author}</p>
+                  {book?.isbn && (
+                    <p className="text-sm text-gray-500 mt-1">ISBN: {book?.isbn}</p>
+                  )}
+                </div>
+                {qrCode && (
+                  <div className="flex-shrink-0 ml-4">
+                    <img src={qrCode} alt="QR Code" className="w-20 h-20 border border-gray-200 rounded-lg" />
+                  </div>
+                )}
               </div>
-            )}
+            </div>
           </div>
 
           {/* Status Badge */}

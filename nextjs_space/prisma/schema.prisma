@@ -35,6 +35,8 @@ model Book {
   id          String   @id @default(cuid())
   title       String
   author      String
+  isbn        String?
+  coverUrl    String?
   condition   String?
   description String?
   status      String   @default("pending") // pending, approved, rejected, paused
@@ -52,6 +54,7 @@ model Book {
 
   @@index([status])
   @@index([ownerId])
+  @@index([isbn])
 }
 
 model Loan {

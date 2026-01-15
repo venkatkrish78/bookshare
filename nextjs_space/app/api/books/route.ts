@@ -71,7 +71,7 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   try {
     const session = await requireVerifiedUser()
-    const { title, author, categoryId, condition, description } = await request.json()
+    const { title, author, isbn, coverUrl, categoryId, condition, description } = await request.json()
 
     if (!title || !author || !categoryId) {
       return NextResponse.json(
@@ -84,6 +84,8 @@ export async function POST(request: Request) {
       data: {
         title,
         author,
+        isbn,
+        coverUrl,
         categoryId,
         condition,
         description,
